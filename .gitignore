@@ -1,0 +1,16 @@
+# Diretórios do PyInstaller
+__pycache__/
+build/
+dist/
+
+# Arquivos do PyInstaller
+*.spec
+*.pyc
+*.pyo
+*.log
+
+# Wallpapers salvos
+Pictures/
+
+# Variáveis de ambiente
+.env
