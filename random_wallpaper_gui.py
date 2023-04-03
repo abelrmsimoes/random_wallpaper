@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import StringVar, messagebox
+from tkinter import messagebox
 from PIL import Image, ImageTk
 
 from random_wallpaper_api import RandomWallpaperAPI
@@ -44,7 +44,7 @@ class RandomWallpaperGUI:
         self.time_entry.insert(0, "30")
         self.time_entry.place(x=10, y=110, width=300, height=25)
 
-        self.orientation_value = StringVar()
+        self.orientation_value = tk.StringVar()
 
         self.orientation_landscape = tk.Radiobutton(
             master, text="Landscape", variable=self.orientation_value, value="landscape")
@@ -61,7 +61,6 @@ class RandomWallpaperGUI:
         search_button.place(x=10, y=190, width=300, height=30)
         search_button["command"] = self.set_wallpaper
 
-        # Cria um Label para exibir a imagem
         self.image_label = tk.Label(master)
         self.image_label.place(x=320, y=10, width=300, height=180)
 
@@ -79,7 +78,7 @@ class RandomWallpaperGUI:
             picture_image = Image.open(picture_file)
 
             # Redimensiona a imagem para as proporções corretas
-            picture_image.thumbnail((300, 180))
+            picture_image.thumbnail((280, 180))
             picture_photo = ImageTk.PhotoImage(picture_image)
             self.image_label.config(image=picture_photo)
             self.image_label.image = picture_photo

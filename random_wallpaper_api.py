@@ -7,9 +7,8 @@ from dotenv import load_dotenv
 
 
 class RandomWallpaperAPI:
-    def __init__(self, search_term="mountains", time_interval=30, orientation_value="landscape"):
+    def __init__(self, search_term="mountains", orientation_value="landscape"):
         self.search_term = search_term
-        self.time_interval = time_interval * 60 * 1000
         self.orientation_value = orientation_value
 
     def set_wallpaper(self, search_term, orientation_value):
@@ -53,39 +52,6 @@ class RandomWallpaperAPI:
         ctypes.windll.user32.SystemParametersInfoW(
             SPI_SETDESKWALLPAPER, 0, os.path.abspath(photo_path), 0)
 
-    def start(self):
-        self.set_wallpaper(self)
-        # Atualizar o papel de parede de acordo com o tempo especificado
-        Timer(self.time_interval, self.start).start()
-
-
-class Timer:
-    def __init__(self, interval, function):
-        self.interval = interval
-        self.function = function
-        self.running = False
-        self.finished = False
-
-    def start(self):
-        import threading
-        self.running = True
-        self.finished = False
-        threading.Timer(self.interval, self._execute).start()
-
-    def stop(self):
-        self.running = False
-
-    def _execute(self):
-        if not self.running:
-            self.finished = True
-            return
-
-        self.function()
-
-        self.finished = True
-        self.start()
-
 
 if __name__ == '__main__':
     rw = RandomWallpaperAPI()
-    rw.start()
