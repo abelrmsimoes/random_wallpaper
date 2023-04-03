@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import StringVar, messagebox
 from PIL import Image, ImageTk
 
 from random_wallpaper_api import RandomWallpaperAPI
@@ -11,7 +11,7 @@ class RandomWallpaperGUI:
         self.master = master
         master.title("Random Wallpaper")
         width = 620
-        height = 200
+        height = 230
         screenwidth = master.winfo_screenwidth()
         screenheight = master.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height,
@@ -44,10 +44,21 @@ class RandomWallpaperGUI:
         self.time_entry.insert(0, "30")
         self.time_entry.place(x=10, y=110, width=300, height=25)
 
+        self.orientation_value = StringVar()
+
+        self.orientation_landscape = tk.Radiobutton(
+            master, text="Landscape", variable="orientation_value", value="landscape")
+        self.orientation_landscape.place(x=10, y=150, width=100, height=30)
+        self.orientation_landscape.select()
+
+        self.orientation_portrait = tk.Radiobutton(
+            master, text="Portrait", variable="orientation_value", value="portrait")
+        self.orientation_portrait.place(x=110, y=150, width=100, height=30)
+
         search_button = tk.Button(master)
         search_button["justify"] = "center"
         search_button["text"] = "Buscar"
-        search_button.place(x=10, y=150, width=300, height=30)
+        search_button.place(x=10, y=190, width=300, height=30)
         search_button["command"] = self.set_wallpaper
 
         # Cria um Label para exibir a imagem
@@ -76,20 +87,20 @@ class RandomWallpaperGUI:
     def set_wallpaper(self):
         search_term = self.search_entry.get()
         time_interval = int(self.time_entry.get()) * 60 * 1000
+        orientation_value = self.orientation_value.get()
 
         try:
-            self.api.set_wallpaper(search_term)
+            self.api.set_wallpaper(search_term, orientation_value)
             self.master.after(time_interval, self.set_wallpaper)
 
             # Atualiza a imagem
             self.preview_wallpaper()
+
         except ValueError as e:
             message = "Não foi possível encontrar uma imagem adequada. Tente novamente mais tarde."
             messagebox.showerror("Erro", message)
         except Exception as e:
             messagebox.showerror("Erro", str(e))
-            # exibe o erro no terminal
-            raise e
 
 
 if __name__ == "__main__":

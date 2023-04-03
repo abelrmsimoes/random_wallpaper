@@ -7,25 +7,26 @@ from dotenv import load_dotenv
 
 
 class RandomWallpaperAPI:
-    def __init__(self, search_term="mountains", time_interval=30):
+    def __init__(self, search_term="mountains", time_interval=30, orientation_value="landscape"):
         self.search_term = search_term
         self.time_interval = time_interval * 60 * 1000
+        self.orientation_value = orientation_value
 
-    def set_wallpaper(self, search_term):
+    def set_wallpaper(self, search_term, orientation_value):
         # Configure a chave de API do Unsplash
         load_dotenv()
         # Obtém o valor da variável de ambiente "API_KEY"
         client_id = os.getenv("API_KEY")
 
-        # Realize uma pesquisa aleatória com a API
-        url = f"https://api.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation=landscape"
+        # Realize uma pesquisa com a API
+        url = f"https://api.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}"
         response = requests.get(url)
         data = response.json()
 
         try:
             photo_url = data['urls']['full']
         except KeyError:
-            return
+            return ValueError("Não foi possível encontrar uma imagem com esses parâmetros.")
 
         # Definir o caminho completo para a pasta "Pictures" do usuário
         user_pictures_dir = os.path.join(os.path.expanduser("."), "Pictures")
