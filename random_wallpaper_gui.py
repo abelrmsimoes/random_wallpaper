@@ -91,11 +91,13 @@ class RandomWallpaperGUI:
         time_interval = int(self.time_entry.get()) * 60 * 1000
         orientation_value = self.orientation_value.get()
 
+        # Cancela o after_id para evitar que a função seja chamada novamente
+        if "after_id" in dir(self):
+            root.after_cancel(self.after_id)
         try:
             self.api.set_wallpaper(search_term, orientation_value)
-            self.master.after(time_interval, self.set_wallpaper)
-
-            # Atualiza a imagem
+            self.after_id = self.master.after(
+                time_interval, self.set_wallpaper)
             self.preview_wallpaper()
 
         except ValueError as e:
