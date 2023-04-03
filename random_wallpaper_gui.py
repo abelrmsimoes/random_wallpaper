@@ -47,12 +47,12 @@ class RandomWallpaperGUI:
         self.orientation_value = StringVar()
 
         self.orientation_landscape = tk.Radiobutton(
-            master, text="Landscape", variable="orientation_value", value="landscape")
+            master, text="Landscape", variable=self.orientation_value, value="landscape")
         self.orientation_landscape.place(x=10, y=150, width=100, height=30)
         self.orientation_landscape.select()
 
         self.orientation_portrait = tk.Radiobutton(
-            master, text="Portrait", variable="orientation_value", value="portrait")
+            master, text="Portrait", variable=self.orientation_value, value="portrait")
         self.orientation_portrait.place(x=110, y=150, width=100, height=30)
 
         search_button = tk.Button(master)
@@ -83,6 +83,9 @@ class RandomWallpaperGUI:
             picture_photo = ImageTk.PhotoImage(picture_image)
             self.image_label.config(image=picture_photo)
             self.image_label.image = picture_photo
+
+        else:
+            self.image_label.config(text="Nenhuma imagem encontrada")
 
     def set_wallpaper(self):
         search_term = self.search_entry.get()

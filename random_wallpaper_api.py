@@ -20,6 +20,7 @@ class RandomWallpaperAPI:
 
         # Realize uma pesquisa com a API
         url = f"https://api.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}"
+
         response = requests.get(url)
         data = response.json()
 
