@@ -12,21 +12,25 @@ class RandomWallpaperAPI:
         self.orientation_value = orientation_value
 
     def set_wallpaper(self, search_term, orientation_value):
-        # Configure a chave de API do Unsplash
+        # Obtém o valor da variável de ambiente "API_KEY" e realiza a pesquisa
         load_dotenv()
-        # Obtém o valor da variável de ambiente "API_KEY"
         client_id = os.getenv("API_KEY")
+        url = f"https://apaaaaai.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}"
 
-        # Realize uma pesquisa com a API
-        url = f"https://api.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}"
+        # Verifica se existe conexão com a internet
+        try:
+            response = requests.get(url)
+            data = response.json()
+        except requests.exceptions.ConnectionError:
+            raise ValueError(
+                "Não foi possível realizar a pesquisa. Verifique sua conexão com a internet.")
 
-        response = requests.get(url)
-        data = response.json()
-
+        # Verifica se a pesquisa retornou uma imagem
         try:
             photo_url = data['urls']['full']
         except KeyError:
-            return ValueError("Não foi possível encontrar uma imagem com esses parâmetros.")
+            raise ValueError(
+                "Não foi possível encontrar uma imagem com esses parâmetros.")
 
         # Definir o caminho completo para a pasta "Pictures" do usuário
         user_pictures_dir = os.path.join(os.path.expanduser("."), "Pictures")

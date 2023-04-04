@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+import requests
 
 from random_wallpaper_api import RandomWallpaperAPI
 
@@ -86,25 +87,27 @@ class RandomWallpaperGUI:
         else:
             self.image_label.config(text="Nenhuma imagem encontrada")
 
+    def cancel_after(self):
+        if "after_id" in dir(self):
+            root.after_cancel(self.after_id)
+
     def set_wallpaper(self):
         search_term = self.search_entry.get()
         time_interval = int(self.time_entry.get()) * 60 * 1000
         orientation_value = self.orientation_value.get()
 
-        # Cancela o after_id para evitar que a função seja chamada novamente
-        if "after_id" in dir(self):
-            root.after_cancel(self.after_id)
+        # Cancela o after
+        self.cancel_after()
+
+        # Tenta definir o papel de parede
         try:
             self.api.set_wallpaper(search_term, orientation_value)
             self.after_id = self.master.after(
                 time_interval, self.set_wallpaper)
             self.preview_wallpaper()
-
         except ValueError as e:
-            message = "Não foi possível encontrar uma imagem adequada. Tente novamente mais tarde."
-            messagebox.showerror("Erro", message)
-        except Exception as e:
             messagebox.showerror("Erro", str(e))
+            return
 
 
 if __name__ == "__main__":
