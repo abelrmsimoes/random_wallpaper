@@ -15,7 +15,7 @@ class RandomWallpaperAPI:
         # Obtém o valor da variável de ambiente "API_KEY" e realiza a pesquisa
         load_dotenv()
         client_id = os.getenv("API_KEY")
-        url = f"https://apaaaaai.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}"
+        url = f"https://api.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}"
 
         # Verifica se existe conexão com a internet
         try:
