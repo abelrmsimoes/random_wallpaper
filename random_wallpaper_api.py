@@ -27,6 +27,8 @@ class RandomWallpaperAPI:
         # Verifica se a pesquisa retornou uma imagem
         try:
             photo_url = data['urls']['full']
+            photo_description = data['alt_description']
+            photo_author = data['user']['name']
         except KeyError:
             raise ValueError(
                 "Não foi possível encontrar uma imagem com esses parâmetros.")
@@ -34,21 +36,21 @@ class RandomWallpaperAPI:
         # Definir o caminho completo para a pasta "Pictures" do usuário
         user_pictures_dir = os.path.join(os.path.expanduser("."), "Pictures")
 
-        # Definir o caminho completo para o arquivo de imagem
-        photo_filename = os.path.splitext(photo_url.split("/")[-1])[0]
-        photo_filename = re.sub(r'[^a-zA-Z0-9-]', '', photo_filename)
-        photo_filename = photo_filename + ".jpg"
+        photo_filename = photo_description + " - " + photo_author + ".jpg"
         photo_path = os.path.join(user_pictures_dir, photo_filename)
 
-        # Limpar o conteúdo da pasta Pictures antes de baixar a nova imagem
-        for file in os.listdir(user_pictures_dir):
-            if file.endswith(".jpg"):
-                os.remove(os.path.join(user_pictures_dir, file))
+        # Mantem apenas as 10 imagens mais recentes na pasta "Pictures" do usuário
+        photo_files = os.listdir(user_pictures_dir)
+        photo_files.sort(reverse=True)
+        for photo_file in photo_files[9:]:
+            os.remove(os.path.join(user_pictures_dir, photo_file))
 
-        # Baixar a imagem e salvá-la na pasta "Pictures" do usuário
-        response = requests.get(photo_url)
-        with open(photo_path, "wb") as photo_file:
-            photo_file.write(response.content)
+        # Verifica se a imagem já existe na pasta "Pictures" do usuário
+        if not os.path.isfile(photo_path):
+            # Baixar a imagem e salvá-la na pasta "Pictures" do usuário
+            response = requests.get(photo_url)
+            with open(photo_path, "wb") as photo_file:
+                photo_file.write(response.content)
 
         # Definir a imagem como papel de parede
         SPI_SETDESKWALLPAPER = 20

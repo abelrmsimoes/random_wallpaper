@@ -1,3 +1,4 @@
+import configparser
 import os
 import tkinter as tk
 from tkinter import messagebox
@@ -87,14 +88,26 @@ class RandomWallpaperGUI:
 
         # Carrega a imagem usando a função preview_wallpaper
         self.preview_wallpaper()
-
         self.api = RandomWallpaperAPI()
 
+        # Carrega o arquivo de configuração caso exista
+        self.config = configparser.ConfigParser()
+        if os.path.exists("config.ini"):
+            self.config.read("config.ini")
+            self.search_entry.delete(0, tk.END)
+            self.search_entry.insert(0, self.config["RW"]["search_term"])
+            self.time_entry.delete(0, tk.END)
+            self.time_entry.insert(0, self.config["RW"]["time_interval"])
+            self.orientation_value.set(self.config["RW"]["orientation_value"])
+
     def preview_wallpaper(self):
-        # Carrega a imagem do diretório ./Pictures (assumindo que há apenas uma imagem lá)
+        # Carrega a imagem do diretório ./Pictures
         picture_dir = "./Pictures"
         picture_files = os.listdir(picture_dir)
         if len(picture_files) > 0:
+            # Ordena por imagem mais recente
+            picture_files.sort(key=lambda x: os.path.getmtime(
+                os.path.join(picture_dir, x)), reverse=True)
             picture_file = os.path.join(picture_dir, picture_files[0])
             picture_image = Image.open(picture_file)
 
@@ -107,7 +120,7 @@ class RandomWallpaperGUI:
         else:
             self.image_label.config(text="Nenhuma imagem encontrada")
 
-    # Atualiza o tempo restante para a próxima atualização (hh:mm:ss)
+    # Atualiza o tempo restante para a próxima atualização
     def update_time_remaining(self, time_remaining):
         self.time_remaining_label["text"] = ""
 
@@ -153,6 +166,15 @@ class RandomWallpaperGUI:
                 time_interval, self.set_wallpaper)
             self.preview_wallpaper()
             self.update_time_remaining(time_interval // 1000)
+
+            # Salva as configurações
+            self.config["RW"] = {
+                "search_term": search_term,
+                "time_interval": time_interval // 1000 // 60,
+                "orientation_value": orientation_value
+            }
+            with open("config.ini", "w") as configfile:
+                self.config.write(configfile)
 
         except ValueError as e:
             messagebox.showerror("Erro", str(e))
