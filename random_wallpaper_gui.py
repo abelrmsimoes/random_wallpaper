@@ -2,7 +2,6 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-import requests
 
 from random_wallpaper_api import RandomWallpaperAPI
 
@@ -20,6 +19,11 @@ class RandomWallpaperGUI:
 
         master.geometry(alignstr)
         master.resizable(width=False, height=False)
+
+        # Definir ícone do programa
+        icon = Image.open("icon.ico")
+        icon = ImageTk.PhotoImage(icon)
+        master.iconphoto(False, icon)
 
         # Verificar se a pasta não existe e criá-la
         if not os.path.exists(os.path.join(os.path.expanduser("."), "Pictures")):
@@ -56,14 +60,30 @@ class RandomWallpaperGUI:
             master, text="Portrait", variable=self.orientation_value, value="portrait")
         self.orientation_portrait.place(x=110, y=150, width=100, height=30)
 
+        self.orientation_square = tk.Radiobutton(
+            master, text="Square", variable=self.orientation_value, value="squarish")
+        self.orientation_square.place(x=210, y=150, width=100, height=30)
+
         search_button = tk.Button(master)
         search_button["justify"] = "center"
-        search_button["text"] = "Buscar"
+        search_button["text"] = "Novo Wallpaper"
+
+        search_button.bind("<Enter>", lambda e: search_button.config(
+            bg="light blue", cursor="hand2"))
+        search_button.bind("<Leave>", lambda e: search_button.config(
+            bg="SystemButtonFace", cursor="arrow"))
+
         search_button.place(x=10, y=190, width=300, height=30)
         search_button["command"] = self.set_wallpaper
 
         self.image_label = tk.Label(master)
+        self.image_label["justify"] = "center"
         self.image_label.place(x=320, y=10, width=300, height=180)
+
+        self.time_remaining_label = tk.Label(master)
+        self.time_remaining_label["justify"] = "center"
+        self.time_remaining_label["text"] = "⬅️ Clique em 'Novo Wallpaper' para começar"
+        self.time_remaining_label.place(x=320, y=190, width=300, height=30)
 
         # Carrega a imagem usando a função preview_wallpaper
         self.preview_wallpaper()
@@ -87,24 +107,53 @@ class RandomWallpaperGUI:
         else:
             self.image_label.config(text="Nenhuma imagem encontrada")
 
-    def cancel_after(self):
-        if "after_id" in dir(self):
-            root.after_cancel(self.after_id)
+    # Atualiza o tempo restante para a próxima atualização (hh:mm:ss)
+    def update_time_remaining(self, time_remaining):
+        self.time_remaining_label["text"] = ""
+
+        hours = time_remaining // 3600
+        minutes = (time_remaining % 3600) // 60
+        seconds = time_remaining % 60
+
+        time_parts = []
+        if hours:
+            time_parts.append(
+                f"{hours:02d} hora{'s' if hours > 1 else ''}")
+        if minutes:
+            time_parts.append(
+                f"{minutes:02d} minuto{'s' if minutes > 1 else ''}")
+        if seconds:
+            time_parts.append(
+                f"{seconds:02d} segundo{'s' if seconds > 1 else ''}")
+
+        self.time_remaining_label["text"] = "Próxima atualização em " + \
+            ", ".join(time_parts)
+
+        if time_remaining > 0:
+            self.after_time_remaining = self.master.after(
+                1000, self.update_time_remaining, time_remaining - 1)
 
     def set_wallpaper(self):
         search_term = self.search_entry.get()
         time_interval = int(self.time_entry.get()) * 60 * 1000
         orientation_value = self.orientation_value.get()
 
-        # Cancela o after
-        self.cancel_after()
+        # Cancela o after do wallpaper anterior (se existir)
+        if "after_wallpaper" in dir(self):
+            root.after_cancel(self.after_wallpaper)
+
+        # Cancela o after do tempo restante anterior (se existir)
+        if "after_time_remaining" in dir(self):
+            root.after_cancel(self.after_time_remaining)
 
         # Tenta definir o papel de parede
         try:
             self.api.set_wallpaper(search_term, orientation_value)
-            self.after_id = self.master.after(
+            self.after_wallpaper = self.master.after(
                 time_interval, self.set_wallpaper)
             self.preview_wallpaper()
+            self.update_time_remaining(time_interval // 1000)
+
         except ValueError as e:
             messagebox.showerror("Erro", str(e))
             return

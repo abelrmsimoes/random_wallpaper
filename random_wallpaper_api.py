@@ -7,11 +7,10 @@ from dotenv import load_dotenv
 
 
 class RandomWallpaperAPI:
-    def __init__(self, search_term="mountains", orientation_value="landscape"):
+    def set_wallpaper(self, search_term, orientation_value):
         self.search_term = search_term
         self.orientation_value = orientation_value
 
-    def set_wallpaper(self, search_term, orientation_value):
         # Obtém o valor da variável de ambiente "API_KEY" e realiza a pesquisa
         load_dotenv()
         client_id = os.getenv("API_KEY")
