@@ -6,15 +6,15 @@ from dotenv import load_dotenv
 
 
 class RandomWallpaperAPI:
-    def set_wallpaper(self, search_term, orientation_value):
+    def set_unsplash_wallpaper(self, search_term, orientation_value, featured_image):
         self.search_term = search_term
         self.orientation_value = orientation_value
+        self.featured_image = featured_image
 
         # Obtém o valor da variável de ambiente "API_KEY" e realiza a pesquisa
         load_dotenv()
-        client_id = os.getenv("API_KEY")
-        url = f"https://api.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}"
-
+        client_id = os.getenv("UNSPLASH_KEY")
+        url = f"https://api.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}&featured={featured_image}"
         # Verifica se existe conexão com a internet
         try:
             response = requests.get(url)
