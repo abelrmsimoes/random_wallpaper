@@ -1,5 +1,4 @@
 import os
-import re
 import ctypes
 import requests
 import urllib.parse
@@ -41,7 +40,8 @@ class RandomWallpaperAPI:
 
         # Mantem apenas as 10 imagens mais recentes na pasta "Pictures" do usuário
         photo_files = os.listdir(user_pictures_dir)
-        photo_files.sort(reverse=True)
+        photo_files.sort(key=lambda x: os.path.getmtime(
+            os.path.join(user_pictures_dir, x)), reverse=True)
         for photo_file in photo_files[9:]:
             os.remove(os.path.join(user_pictures_dir, photo_file))
 

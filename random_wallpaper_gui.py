@@ -1,5 +1,5 @@
-import configparser
 import os
+import configparser
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -93,12 +93,18 @@ class RandomWallpaperGUI:
         # Carrega o arquivo de configuração caso exista
         self.config = configparser.ConfigParser()
         if os.path.exists("config.ini"):
-            self.config.read("config.ini")
-            self.search_entry.delete(0, tk.END)
-            self.search_entry.insert(0, self.config["RW"]["search_term"])
-            self.time_entry.delete(0, tk.END)
-            self.time_entry.insert(0, self.config["RW"]["time_interval"])
-            self.orientation_value.set(self.config["RW"]["orientation_value"])
+            try:
+                self.config.read("config.ini")
+                self.search_entry.delete(0, tk.END)
+                self.search_entry.insert(0, self.config["RW"]["search_term"])
+                self.time_entry.delete(0, tk.END)
+                self.time_entry.insert(0, self.config["RW"]["time_interval"])
+                self.orientation_value.set(
+                    self.config["RW"]["orientation_value"])
+            except:
+                messagebox.showerror(
+                    "Erro", "Erro ao carregar o arquivo de configuração")
+                os.remove("config.ini")
 
     def preview_wallpaper(self):
         # Carrega a imagem do diretório ./Pictures
@@ -108,14 +114,18 @@ class RandomWallpaperGUI:
             # Ordena por imagem mais recente
             picture_files.sort(key=lambda x: os.path.getmtime(
                 os.path.join(picture_dir, x)), reverse=True)
-            picture_file = os.path.join(picture_dir, picture_files[0])
-            picture_image = Image.open(picture_file)
+            try:
+                picture_file = os.path.join(picture_dir, picture_files[0])
+                picture_image = Image.open(picture_file)
 
-            # Redimensiona a imagem para as proporções corretas
-            picture_image.thumbnail((280, 180))
-            picture_photo = ImageTk.PhotoImage(picture_image)
-            self.image_label.config(image=picture_photo)
-            self.image_label.image = picture_photo
+                # Redimensiona a imagem para as proporções corretas
+                picture_image.thumbnail((280, 180))
+                picture_photo = ImageTk.PhotoImage(picture_image)
+                self.image_label.config(image=picture_photo)
+                self.image_label.image = picture_photo
+            except:
+                self.image_label.config(text="Erro ao carregar a imagem")
+                os.remove(picture_file)
 
         else:
             self.image_label.config(text="Nenhuma imagem encontrada")
