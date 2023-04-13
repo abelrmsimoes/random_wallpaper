@@ -173,8 +173,8 @@ class RandomWallpaperGUI:
                 # [TODO] Carrega as configurações da seção Wallhaven
 
             except:
-                messagebox.showerror(
-                    "Erro", "Erro ao carregar o arquivo de configuração")
+                messagebox.showwarning(
+                    "Atenção", "Erro ao carregar o arquivo de configuração")
                 try:
                     os.remove("config.ini")
                 except:
@@ -223,15 +223,23 @@ class RandomWallpaperGUI:
             time_parts.append(
                 f"{seconds:02d} segundo{'s' if seconds > 1 else ''}")
 
-        self.time_remaining_label["text"] = "Próxima atualização em " + \
-            ", ".join(time_parts)
+        if len(time_parts) > 0:
+            self.time_remaining_label["text"] = "Próxima atualização em " + \
+                ", ".join(time_parts)
 
         if time_remaining > 0:
             self.after_time_remaining = self.master.after(
                 1000, self.update_time_remaining, time_remaining - 1)
 
     def set_wallpaper(self):
-        # Obtém os valores dos campos de entrada
+        # Cancela o after do wallpaper anterior (se existir)
+        if "after_wallpaper" in dir(self):
+            root.after_cancel(self.after_wallpaper)
+
+        # Cancela o after do tempo restante anterior (se existir)
+        if "after_time_remaining" in dir(self):
+            root.after_cancel(self.after_time_remaining)
+
         try:
             if self.notebook.tab(self.notebook.select(), "text") == "Unsplash":
                 search_term = self.search_entry_unsplash.get()
@@ -260,13 +268,7 @@ class RandomWallpaperGUI:
                 messagebox.showinfo(
                     "Em desenvolvimento", "Este recurso está em desenvolvimento")
 
-            # Cancela o after do wallpaper anterior (se existir)
-            if "after_wallpaper" in dir(self):
-                root.after_cancel(self.after_wallpaper)
-
-            # Cancela o after do tempo restante anterior (se existir)
-            if "after_time_remaining" in dir(self):
-                root.after_cancel(self.after_time_remaining)
+                self.api.set_wallhaven_wallpaper('mountains')
 
             self.preview_wallpaper()
             self.update_time_remaining(time_interval // 1000)

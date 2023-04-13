@@ -15,13 +15,9 @@ class RandomWallpaperAPI:
         load_dotenv()
         client_id = os.getenv("UNSPLASH_KEY")
         url = f"https://api.unsplash.com/photos/random?client_id={client_id}&query={urllib.parse.quote(search_term)}&orientation={orientation_value}&featured={featured_image}"
+
         # Verifica se existe conexão com a internet
-        try:
-            response = requests.get(url)
-            data = response.json()
-        except requests.exceptions.ConnectionError:
-            raise ValueError(
-                "Não foi possível realizar a pesquisa. Verifique sua conexão com a internet.")
+        self.check_internet_connection(url)
 
         # Verifica se a pesquisa retornou uma imagem
         try:
@@ -56,6 +52,30 @@ class RandomWallpaperAPI:
         SPI_SETDESKWALLPAPER = 20
         ctypes.windll.user32.SystemParametersInfoW(
             SPI_SETDESKWALLPAPER, 0, os.path.abspath(photo_path), 0)
+
+    # [TODO] Função para buscar imagens da api do Wallhaven
+    def set_wallhaven_wallpaper(self, search_term):
+        self.search_term = search_term
+        # Obtém o valor da variável de ambiente "API_KEY" e realiza a pesquisa
+        load_dotenv()
+        client_id = os.getenv("WALHAVEN_KEY")
+
+        # traz 1 imagem aleatória
+        url = f"https://wallhaven.cc/api/v1/search?apikey={client_id}&q={urllib.parse.quote(search_term)}&sorting=random&order=desc&page=1&seed=1"
+
+        # url = f"https://wallhaven.cc/api/v1/search?apikey={client_id}&q={urllib.parse.quote(search_term)}"
+        print(url)
+
+        # Verifica se existe conexão com a internet
+        self.check_internet_connection(url)
+
+    def check_internet_connection(self, url):
+        try:
+            response = requests.get(url)
+            data = response.json()
+        except requests.exceptions.ConnectionError:
+            raise ValueError(
+                "Não foi possível realizar a pesquisa. Verifique sua conexão com a internet.")
 
 
 if __name__ == '__main__':
